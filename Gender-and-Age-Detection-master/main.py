@@ -1,5 +1,5 @@
 import os
-from detect import verificarTodasFotos, printarInformacoes, mudarHistorico, escreverTexto
+from utilities import verificarTodasFotos, printarInformacoes, mudarHistorico, escreverTexto
 
 LISTA_DATA = os.listdir('//192.168.1.136/apps/fotos')
 LISTA_HORA = os.listdir(f'//192.168.1.136/apps/fotos/{LISTA_DATA[0]}')
