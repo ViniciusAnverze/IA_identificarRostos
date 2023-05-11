@@ -1,5 +1,7 @@
 import cv2
 import os
+import numpy as np
+import base64
 
 FACE_PROTO = "opencv_face_detector.pbtxt"
 FACE_MODEL = "opencv_face_detector_uint8.pb"
@@ -40,7 +42,7 @@ def highlightFace(net, frame, conf_threshold=0.7):
     return frameOpencvDnn, faceBoxes
 
 
-def verificarFoto(foto, highlightFace, faixaEtariaFinal, contadorGenero):
+def verificarFoto(foto, faixaEtariaFinal, contadorGenero):
     video = cv2.VideoCapture(foto if foto else 0)
     padding = 20
     while cv2.waitKey(1) < 0:
@@ -49,6 +51,8 @@ def verificarFoto(foto, highlightFace, faixaEtariaFinal, contadorGenero):
         if not hasFrame:
             cv2.waitKey()
             break
+
+        print(type(frame))
 
         resultImg, faceBoxes = highlightFace(FACE_NET, frame)
 
@@ -59,6 +63,7 @@ def verificarFoto(foto, highlightFace, faixaEtariaFinal, contadorGenero):
             face = frame[max(0, faceBox[1]-padding): min(faceBox[3]+padding, frame.shape[0]-1), max(0, faceBox[0]-padding):min(faceBox[2]+padding, frame.shape[1]-1)]
 
             blob = cv2.dnn.blobFromImage(face, 1.0, (227, 227), MODEL_MEAN_VALUES, swapRB=False)
+
             GENDER_NET.setInput(blob)
             genderPreds = GENDER_NET.forward()
             gender = GENDER_LIST[genderPreds[0].argmax()]
@@ -74,8 +79,9 @@ def verificarFoto(foto, highlightFace, faixaEtariaFinal, contadorGenero):
             faixaEtariaFinal[age] += 1
             print(f'Idade: {age[1:-1]} anos')
 
-            cv2.putText(resultImg, f'{gender}, {age}', (faceBox[0], faceBox[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2, cv2.LINE_AA)
+            # cv2.putText(resultImg, f'{gender}, {age}', (faceBox[0], faceBox[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2, cv2.LINE_AA)
             # cv2.imshow("Detecting age and gender", resultImg)
+
 
 
 def verificarTodasFotos(listaFotos, data, hora):  
@@ -93,15 +99,19 @@ def verificarTodasFotos(listaFotos, data, hora):
     '(60-100)': 0
     }
 
+    print('Getting a Blob')
+    
+
     for foto in listaFotos:
         try:
             print('nome: '+foto)
-            verificarFoto(f'//192.168.1.136/apps/fotos/{data}/{hora}/'+foto, highlightFace, faixaEtariaFinal, contadorGenero)
+            verificarFoto(f'//192.168.1.136/apps/fotos/{data}/{hora}/'+foto, faixaEtariaFinal, contadorGenero)
             print(end='\n')      
         except:
             print('Não encontrado')  
     
     return contadorGenero['masculino'], contadorGenero['feminino'], faixaEtariaFinal
+
 
 
 def printarInformacoes(data, hora, contadorMasculino, contadorFeminino, faixaEtariaFinal):
@@ -114,7 +124,6 @@ def printarInformacoes(data, hora, contadorMasculino, contadorFeminino, faixaEta
     print(f'Número de ouvintes em relação a cada faixa etária:')
     for idade in faixaEtariaFinal:
         print(f'{idade} anos: {faixaEtariaFinal[idade]} ouvinte(s)') 
-
 
 def escreverTexto(faixaEtariaFinal, data, hora, contadorMasculino, contadorFeminino, filePath):
     text = ''
@@ -140,7 +149,6 @@ Número de ouvintes em relação a cada faixa etária:
 """)
     except FileNotFoundError:
         print("Directory or file not found")
-
 
 def mudarHistorico(caminhoHora, caminhoData, data, hora):
     os.rename(caminhoHora,

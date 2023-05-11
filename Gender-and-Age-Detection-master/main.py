@@ -15,6 +15,7 @@ contadorMasculino, contadorFeminino, faixaEtariaFinal = verificarTodasFotos(LIST
 
 printarInformacoes(DATA, HORA, contadorMasculino, contadorFeminino, faixaEtariaFinal)
 
-filePath = mudarHistorico(CAMINHO_HORA, CAMINHO_DATA, DATA, HORA)
+# filePath = mudarHistorico(CAMINHO_HORA, CAMINHO_DATA, DATA, HORA)
 
-escreverTexto(faixaEtariaFinal, DATA, HORA, contadorMasculino, contadorFeminino, filePath)
+# escreverTexto(faixaEtariaFinal, DATA, HORA, contadorMasculino, contadorFeminino, filePath)
+
